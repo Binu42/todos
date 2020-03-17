@@ -6,9 +6,11 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
+let mainWindow, addWindow;
+
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
   });
@@ -16,18 +18,31 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  mainWindow.on('closed', () => app.quit())
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
   const mainMenu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(mainMenu);
 };
 
+const createNewWindow = () => {
+  addWindow = new BrowserWindow({
+    width: 300,
+    height: 200,
+    title: "Add new Todo"
+  })
+  addWindow.loadFile(path.join(__dirname, 'add.html'));
+}
+
 const menuTemplate = [
   {
     label: 'File',
     submenu: [
       {
-        label: "New Todo"
+        label: "New Todo",
+        click() {
+          createNewWindow();
+        }
       },
       {
         label: "Quit",
