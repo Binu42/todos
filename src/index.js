@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -17,9 +17,32 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
+  const mainMenu = Menu.buildFromTemplate(menuTemplate);
+  Menu.setApplicationMenu(mainMenu);
 };
 
+const menuTemplate = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: "New Todo"
+      },
+      {
+        label: "Quit",
+        accelerator: process.platform === 'darwin' ? 'Command + Q' : 'Ctrl+Q',
+        click() {
+          app.quit();
+        }
+      }
+    ]
+  }
+]
+
+if (process.platform === 'darwin') {
+  menuTemplate.unshift({});
+}
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
