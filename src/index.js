@@ -58,6 +58,19 @@ const menuTemplate = [
 if (process.platform === 'darwin') {
   menuTemplate.unshift({});
 }
+
+if (process.env.NODE_ENV !== 'production') {
+  menuTemplate.push({
+    label: "View",
+    accelerator: process.platform === 'darwin' ? 'Command+Alt+I' : 'Ctrl+Shift+I',
+    submenu: [{
+      label: 'Toggle Developer Tools',
+      click(item, focusedWindow) {
+        focusedWindow.toggleDevTools();
+      }
+    }]
+  })
+}
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
