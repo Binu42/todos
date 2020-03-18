@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -13,6 +13,9 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   // and load the index.html of the app.
@@ -29,9 +32,13 @@ const createNewWindow = () => {
   addWindow = new BrowserWindow({
     width: 300,
     height: 200,
-    title: "Add new Todo"
+    title: "Add new Todo",
+    webPreferences: {
+      nodeIntegration: true
+    }
   })
   addWindow.loadFile(path.join(__dirname, 'add.html'));
+  addWindow.on('closed', () => addWindow = null)
 }
 
 const menuTemplate = [
@@ -40,8 +47,16 @@ const menuTemplate = [
     submenu: [
       {
         label: "New Todo",
+        accelerator: process.platform === 'darwin' ? 'Command+N' : 'Ctrl+N',
         click() {
           createNewWindow();
+        }
+      },
+      {
+        label: 'Clear Todo',
+        accelerator: process.platform === 'darwin' ? 'Command + L' : 'Ctrl + L',
+        click() {
+          mainWindow.webContents.send('todo:clear');
         }
       },
       {
@@ -62,15 +77,23 @@ if (process.platform === 'darwin') {
 if (process.env.NODE_ENV !== 'production') {
   menuTemplate.push({
     label: "View",
-    accelerator: process.platform === 'darwin' ? 'Command+Alt+I' : 'Ctrl+Shift+I',
-    submenu: [{
-      label: 'Toggle Developer Tools',
-      click(item, focusedWindow) {
-        focusedWindow.toggleDevTools();
-      }
-    }]
+    submenu: [
+      { role: 'reload' },
+      {
+        label: 'Developer Tools',
+        accelerator: process.platform === 'darwin' ? 'Command+Alt+I' : 'Ctrl+Shift+I',
+        click(item, focusedWindow) {
+          focusedWindow.toggleDevTools();
+        }
+      }]
   })
 }
+
+ipcMain.on('todo:add', (event, todo) => {
+  mainWindow.webContents.send('todo:add', todo);
+  addWindow.close();
+})
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

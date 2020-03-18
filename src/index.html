@@ -10,6 +10,21 @@
 <body>
   <h1>💖 Hello World!</h1>
   <p>Welcome to your Electron application.</p>
+  <ul></ul>
+  <script>
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+
+    ipcRenderer.on('todo:add', (event, todo) => {
+      const liElement = document.createElement('li');
+      liElement.textContent = todo;
+      document.querySelector('ul').append(liElement);
+    });
+
+    ipcRenderer.on('todo:clear', (event) => {
+      document.querySelector('ul').innerHTML = "";
+    });
+  </script>
 </body>
 
 </html>
